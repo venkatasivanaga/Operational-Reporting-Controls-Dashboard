@@ -1,15 +1,15 @@
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 from backend.app.core.config import settings
 from backend.app.db.base import Base
 
 # Import models so metadata is populated
-from backend.app.models.control import Control  # noqa
-from backend.app.models.incident import Incident  # noqa
-from backend.app.models.test_result import TestResult  # noqa
+from backend.app.models.control import Control  # noqa: F401
+from backend.app.models.incident import Incident  # noqa: F401
+from backend.app.models.test_result import TestResult  # noqa: F401
 
 config = context.config
 
