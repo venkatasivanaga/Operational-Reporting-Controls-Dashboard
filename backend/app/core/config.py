@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     env: str = "dev"
     api_name: str = "Operational Reporting Controls API"
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    database_url: str = "sqlite:///./backend/app.db"
 
     model_config = SettingsConfigDict(
         env_file=".env",
