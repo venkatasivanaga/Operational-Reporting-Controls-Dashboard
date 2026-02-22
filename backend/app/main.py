@@ -5,6 +5,7 @@ from backend.app.core.config import settings
 from backend.app.db.init_db import init_db
 from backend.app.api.routes.controls import router as controls_router
 from backend.app.api.routes.incidents import router as incidents_router
+from backend.app.api.routes.tests import router as tests_router
 
 app = FastAPI(
     title=settings.api_name,
@@ -25,6 +26,7 @@ def on_startup():
 
 app.include_router(controls_router, prefix="/api")
 app.include_router(incidents_router, prefix="/api")
+app.include_router(tests_router, prefix="/api")
 
 @app.get("/")
 def root():
