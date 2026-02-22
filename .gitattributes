@@ -1,7 +1,4 @@
-# Normalize line endings in repo
 * text=auto eol=lf
-
-# Explicitly treat these as text
 *.md text eol=lf
 *.py text eol=lf
 *.yml text eol=lf
