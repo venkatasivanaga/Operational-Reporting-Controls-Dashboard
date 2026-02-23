@@ -27,3 +27,19 @@ htmlcov/
 
 # Logs
 *.log
+
+# Local databases
+backend/app.db
+*.db
+
+
+# Root node artifacts (frontend owns node config)
+/package.json
+/package-lock.json
+/tailwind.config.js
+
+
+# Local databases
+backend/app.db
+*.db
+
