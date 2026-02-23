@@ -1,51 +1,30 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getMetricsSummary, type MetricsSummary } from './lib/api'
 
-function formatPercent(value: number | null) {
-  if (value === null) return '—'
-  return ${Math.round(value * 100)}%
+function pct(v: number | null): string {
+  if (v === null) return '--'
+  return String(Math.round(v * 100)) + '%'
 }
 
-function formatNumber(value: number | null) {
-  if (value === null) return '—'
-  return value.toFixed(1)
+function hrs(v: number | null): string {
+  if (v === null) return '--'
+  return v.toFixed(1)
 }
 
 export default function App() {
-  const [data, setData] = useState<MetricsSummary | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [m, setM] = useState<MetricsSummary | null>(null)
+  const [err, setErr] = useState<string | null>(null)
 
   useEffect(() => {
-    let alive = true
-    setLoading(true)
     getMetricsSummary()
       .then((d) => {
-        if (!alive) return
-        setData(d)
-        setError(null)
+        setM(d)
+        setErr(null)
       })
       .catch((e: unknown) => {
-        if (!alive) return
-        setError(e instanceof Error ? e.message : 'Failed to load metrics')
+        setErr(e instanceof Error ? e.message : 'Failed to load metrics')
       })
-      .finally(() => {
-        if (!alive) return
-        setLoading(false)
-      })
-
-    return () => {
-      alive = false
-    }
   }, [])
-
-  const cards = useMemo(() => {
-    return [
-      { label: 'Open incidents', value: data?.open_incidents ?? null, format: (v: number | null) => (v ?? '—') },
-      { label: 'Pass rate', value: data?.pass_rate ?? null, format: formatPercent },
-      { label: 'MTTR (hrs)', value: data?.mttr_hours ?? null, format: formatNumber },
-    ]
-  }, [data])
 
   return (
     <div className='min-h-screen bg-white text-zinc-900'>
@@ -57,60 +36,30 @@ export default function App() {
       </header>
 
       <main className='mx-auto max-w-6xl px-4 py-8'>
-        <div className='flex items-start justify-between gap-4'>
-          <div>
-            <h1 className='text-xl font-semibold'>Dashboard</h1>
-            <p className='mt-1 text-sm text-zinc-600'>
-              Pulling KPIs from <span className='font-mono'>/api/metrics/summary</span>
-            </p>
-          </div>
+        <h1 className='text-xl font-semibold'>Dashboard</h1>
 
-          <a
-            className='text-sm underline text-zinc-700 hover:text-zinc-900'
-            href='http://127.0.0.1:8000/docs'
-            target='_blank'
-            rel='noreferrer'
-          >
-            API docs
-          </a>
-        </div>
+        {err && (
+          <div className='mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700'>
+            {err}
+          </div>
+        )}
 
         <div className='mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3'>
-          {cards.map((c) => (
-            <div key={c.label} className='rounded-xl border border-zinc-200 p-5 shadow-sm'>
-              <div className='text-sm text-zinc-600'>{c.label}</div>
-              <div className='mt-2 text-2xl font-semibold'>
-                {loading ? '…' : c.format(c.value as number | null)}
-              </div>
-            </div>
-          ))}
+          <div className='rounded-xl border border-zinc-200 p-5 shadow-sm'>
+            <div className='text-sm text-zinc-600'>Open incidents</div>
+            <div className='mt-2 text-2xl font-semibold'>{m ? m.open_incidents : '...'}</div>
+          </div>
+
+          <div className='rounded-xl border border-zinc-200 p-5 shadow-sm'>
+            <div className='text-sm text-zinc-600'>Pass rate</div>
+            <div className='mt-2 text-2xl font-semibold'>{m ? pct(m.pass_rate) : '...'}</div>
+          </div>
+
+          <div className='rounded-xl border border-zinc-200 p-5 shadow-sm'>
+            <div className='text-sm text-zinc-600'>MTTR (hrs)</div>
+            <div className='mt-2 text-2xl font-semibold'>{m ? hrs(m.mttr_hours) : '...'}</div>
+          </div>
         </div>
-
-        {error && (
-          <div className='mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700'>
-            {error}
-            <div className='mt-2 text-xs text-red-700/80'>
-              Make sure the backend is running at <span className='font-mono'>http://127.0.0.1:8000</span>.
-            </div>
-          </div>
-        )}
-
-        {data && (
-          <div className='mt-6 grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <div className='rounded-xl border border-zinc-200 p-5'>
-              <div className='text-sm font-medium'>Incidents by status</div>
-              <pre className='mt-2 text-xs text-zinc-700 overflow-auto'>
-                {JSON.stringify(data.incidents_by_status, null, 2)}
-              </pre>
-            </div>
-            <div className='rounded-xl border border-zinc-200 p-5'>
-              <div className='text-sm font-medium'>Tests by result</div>
-              <pre className='mt-2 text-xs text-zinc-700 overflow-auto'>
-                {JSON.stringify(data.tests_by_result, null, 2)}
-              </pre>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   )
