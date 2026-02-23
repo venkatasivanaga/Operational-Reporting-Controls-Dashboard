@@ -9,10 +9,11 @@ export type MetricsSummary = {
 };
 
 export async function getMetricsSummary(): Promise<MetricsSummary> {
-  const res = await fetch(${API_BASE_URL}/api/metrics/summary);
+  const url = API_BASE_URL + '/api/metrics/summary';
+  const res = await fetch(url);
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(Metrics request failed:  );
+    throw new Error('Metrics request failed: ' + res.status + ' ' + text);
   }
   return res.json();
 }
